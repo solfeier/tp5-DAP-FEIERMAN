@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tp3/providers/auth_provider.dart';
+import 'package:tp5/providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -17,19 +17,32 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
 
-  void _registrar() {
+  @override
+  void dispose() {
+    _nombreController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPassController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _registrar() async {
     if (_formKey.currentState!.validate()) {
-      bool exito = ref.read(authProvider.notifier).register(
+      final exito = await ref.read(authProvider.notifier).register(
             _nombreController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text.trim(),
           );
 
+      if (!mounted) return;
+
       if (exito) {
         context.go('/home');
       } else {
+        final mensaje = ref.read(authProvider).errorMessage ??
+            "No se pudo completar el registro";
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("El correo ya está registrado")),
+          SnackBar(content: Text(mensaje)),
         );
       }
     }
@@ -37,6 +50,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text("Registro de Usuario")),
       body: SingleChildScrollView(
@@ -48,15 +63,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               TextFormField(
                 controller: _nombreController,
                 decoration: const InputDecoration(labelText: "Nombre Completo"),
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Ingrese su nombre" : null,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? "Ingrese su nombre"
+                    : null,
               ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(labelText: "Email"),
                 validator: (value) {
-                  if (value == null || !value.contains('@')) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Ingrese su email";
+                  }
+                  if (!value.contains('@') || !value.contains('.')) {
                     return "Ingrese un email válido";
                   }
                   return null;
@@ -68,8 +88,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 obscureText: true,
                 decoration: const InputDecoration(labelText: "Contraseña"),
                 validator: (value) {
-                  if (value == null || value.length < 3) {
-                    return "La contraseña debe tener al menos 3 caracteres";
+                  if (value == null || value.length < 6) {
+                    return "La contraseña debe tener al menos 6 caracteres";
                   }
                   return null;
                 },
@@ -78,7 +98,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               TextFormField(
                 controller: _confirmPassController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: "Confirmar Contraseña"),
+                decoration:
+                    const InputDecoration(labelText: "Confirmar Contraseña"),
                 validator: (value) {
                   if (value != _passwordController.text) {
                     return "Las contraseñas no coinciden";
@@ -87,10 +108,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _registrar,
-                child: const Text("Registrarse"),
-              ),
+              authState.isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _registrar,
+                      child: const Text("Registrarse"),
+                    ),
             ],
           ),
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tp3/entities/herramienta.dart';
+import 'package:tp5/entities/herramienta.dart';
 
 class HerramientasNotifier extends Notifier<List<Herramienta>> {
   @override
@@ -11,6 +11,8 @@ class HerramientasNotifier extends Notifier<List<Herramienta>> {
         nombre: "Soldador",
         desc: "Instrumento con que se suelda.",
         cantidad: 12,
+        categoria: "Soldadura",
+        ubicacion: "Estación A",
         foto: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Soldering_gun.jpg",
       ),
       Herramienta(
@@ -18,6 +20,8 @@ class HerramientasNotifier extends Notifier<List<Herramienta>> {
         nombre: "Destornillador",
         desc: "Instrumento de hierro u otra materia, que sirve para destornillar y atornillar.",
         cantidad: 19,
+        categoria: "Manuales",
+        ubicacion: "Estación B",
         foto: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9NwWx2lZNG46JNzwbQp14DLIIQ_erLjb_l5lPN58iEbAjth2vBEMu6s0&s=10",
       ),
       Herramienta(
@@ -25,6 +29,8 @@ class HerramientasNotifier extends Notifier<List<Herramienta>> {
         nombre: "Tester",
         desc: "Instrumento eléctrico portátil capaz de medir directamente magnitudes eléctricas activas.",
         cantidad: 9,
+        categoria: "Medición",
+        ubicacion: "Estación C",
         foto: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/RE50G_Range_Digital_Mutilmeter%2C_professional_Mutilmeter.jpg/250px-RE50G_Range_Digital_Mutilmeter%2C_professional_Mutilmeter.jpg",
       ),
     ];
